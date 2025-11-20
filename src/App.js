@@ -76,7 +76,7 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200 flex flex-col">
         <Navigation />
         
         <main className="py-8">
@@ -90,7 +90,7 @@ const App = () => {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4">
+        <footer className="bg-gray-200 dark:bg-gray-800 text-center py-4 text-sm text-gray-700 dark:text-gray-300 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p className="text-center text-gray-600 dark:text-gray-400 text-sm">
               DevReplay - Your Developer Journal
