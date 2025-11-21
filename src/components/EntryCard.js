@@ -3,22 +3,32 @@ import React, { useState, useEffect } from 'react';
 const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
   const [generatedAnswer, setGeneratedAnswer] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (isModal) {
-      setLoading(true);
-      // Simulate AI call
-      setTimeout(() => {
-        setGeneratedAnswer('This is an AI-generated answer for: ' + (entry.question || entry.content || entry.title));
-        setLoading(false);
-      }, 1200);
-    } else {
-      setGeneratedAnswer('');
-      setLoading(false);
-    }
-  }, [isModal, entry]);
   const [isExpanded, setIsExpanded] = useState(false);
 
+
+  useEffect(() => {
+  if (isModal && entry?.id) {
+    setLoading(true);
+    fetch(`http://localhost:8000/entries/${entry.id}/ai/`, {
+      method: 'POST'
+      // plus de body, plus de headers à préciser
+    })
+      .then(res => res.json())
+      .then(data => {
+        setGeneratedAnswer(data.answer);
+        setLoading(false);
+      })
+      .catch(err => {
+        setGeneratedAnswer('Erreur lors de la génération de la réponse.');
+        setLoading(false);
+      });
+  } else {
+    setGeneratedAnswer('');
+    setLoading(false);
+  }
+}, [isModal, entry]);
+
+  // --- Formatages utiles ---
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -31,16 +41,16 @@ const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    
     if (diffInDays === 0) return 'Today';
     if (diffInDays === 1) return 'Yesterday';
     if (diffInDays < 7) return `${diffInDays} days ago`;
     return formatDate(dateString);
   };
 
-  // Parse tags from comma-separated string
+  // --- Tags ---
   const tags = entry.tags ? entry.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
 
+  // --- Rendu visuel ---
   return (
     <article
       className={`bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 ${onClick && !isModal ? 'cursor-pointer' : ''}`}
@@ -91,7 +101,7 @@ const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
         )}
       </div>
 
-      {/* Tip Section */}
+      {/* Tip Section + Réponse IA */}
       <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-4">
         <div className="flex items-start">
           <span className="text-indigo-600 dark:text-indigo-300 mr-2">💡</span>
@@ -127,11 +137,6 @@ const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
 
       {/* Actions */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
-        <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
         <button className="text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -142,4 +147,4 @@ const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
   );
 };
 
-export default EntryCard; 
+export default EntryCard;
