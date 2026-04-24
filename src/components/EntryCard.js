@@ -47,9 +47,9 @@ const EntryCard = ({ entry, isModal = false, onClose, onClick }) => {
     return formatDate(dateString);
   };
 
-  // --- Tags ---
-  const tags = entry.tags ? entry.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
-
+const tags = Array.isArray(entry.tags)
+  ? entry.tags
+  : entry.tags ? entry.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
   // --- Rendu visuel ---
   return (
     <article

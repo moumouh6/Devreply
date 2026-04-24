@@ -34,13 +34,11 @@ const Dashboard = () => {
   const allTags = useMemo(() => {
     const tags = new Set();
     entries.forEach(entry => {
-      if (entry.tags) {
-        entry.tags.split(',').forEach(tag => {
-          const trimmedTag = tag.trim();
-          if (trimmedTag) tags.add(trimmedTag);
-        });
-      }
-    });
+  const tagList = Array.isArray(entry.tags)
+    ? entry.tags
+    : entry.tags ? entry.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+  tagList.forEach(tag => tags.add(tag));
+});
     return Array.from(tags).sort();
   }, [entries]);
 
@@ -51,8 +49,10 @@ const Dashboard = () => {
                           entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (entry.summary && entry.summary.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesTag = !selectedTag || 
-        (entry.tags && entry.tags.split(',').map(t => t.trim()).includes(selectedTag));
+      const tagList = Array.isArray(entry.tags)
+  ? entry.tags
+  : entry.tags ? entry.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+const matchesTag = !selectedTag || tagList.includes(selectedTag);
       
       return matchesSearch && matchesTag;
     });
